@@ -8,7 +8,7 @@ const generateAccessAndRefreshTokens = async(userId)=>{
     try{
         const user = await User.findById(userId);
         const accessToken = user.generateAccessToken();
-        const generateToken = user.generateRefreshTOken();
+        const refreshToken = user.generateRefreshToken();
         user.refreshToken = refreshToken;
         await user.save({validateBeforeSave : false});
         return {accessToken , refreshToken};
@@ -28,24 +28,24 @@ const registerUser = asyncHandler(async(req,res)=>{
         throw new ApiError(409,"User with email or username already exists",[])
     }
 
-    const user = User.create({
+    const user = await User.create({
         email,
         password,
         username,
-        isEmailVerified = false
+        isEmailVerified : false
     });
 
-    const {unhashedTOken , hashedToken , tokenExpiry} = user.generateTemporaryToken();
+    const {unhashedToken , hashedToken , tokenExpiry} = user.generateTemporaryToken();
 
-    (await user).emailVerificationToken = hashedToken;
-    (await user).emailVerificationExpiry = tokenExpiry;
+        user.emailVerificationToken = hashedToken;
+        user.emailVerificationExpiry = tokenExpiry;
 
     await user.save({validateBeforeSave:false});
 
     await sendEmail({
         email : user?.email,
         subject : "Please verify your email",
-        mailgenContent : emailVerificationMailgenContent(user.username , `${req.protocol}://${req.get("host")}/api/v1/users/verify-email/${unhashedTOken}`),
+        mailgenContent : emailVerificationMailgenContent(user.username , `${req.protocol}://${req.get("host")}/api/v1/users/verify-email/${unhashedToken}`),
 
     });
 

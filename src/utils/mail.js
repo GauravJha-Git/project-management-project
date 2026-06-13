@@ -12,13 +12,13 @@ const sendEmail = async (options) => {
         }
     });
 
-    const emailTextual = mailGenerator.generatePlaintext(oprtions.mailgenContent);
-    const emailHtml = mailGenerator.generate(oprtions.mailgenContent);
+    const emailTextual = mailGenerator.generatePlaintext(options.mailgenContent);
+    const emailHtml = mailGenerator.generate(options.mailgenContent);
 
 
     const transporter = nodemailer.createTransport({
-        host: process.env.MAIL_TRAP_HOST,
-        port : process.env.MAIL_TRAP_PORT,
+        host: process.env.MAILTRAP_SMTP_HOST,
+        port : process.env.MAILTRAP_SMTP_PORT,
         auth:{
             user : process.env.MAILTRAP_SMTP_USER,
             pass : process.env.MAILTRAP_SMTP_PASS
